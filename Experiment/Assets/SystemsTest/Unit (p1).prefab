@@ -47,7 +47,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   faction: 0
   c: {fileID: 0}
-  lineOfSight: 10
+  target: {fileID: 0}
+  speed: 14
+  lineOfSight: 7
 --- !u!1 &6485234659814886221
 GameObject:
   m_ObjectHideFlags: 0

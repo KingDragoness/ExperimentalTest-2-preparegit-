@@ -64,7 +64,7 @@ public class CirclePixels
         return indexes;
     }
 
-    public int[] GetIndexes(Vector2Int originDraw, Vector2Int localOrigin, Vector2Int sizeDraw, int textureDimension = 256)
+    public int[] GetIndexes(Vector2Int originDraw, Vector2Int localOrigin, Vector2Int sizeDraw, float unitYpos, int textureDimension = 256)
     {
         //every y, store indexes what X to draw. [2 * 256: + 0,1,2,3,4,5] [0 * 256: + 2,3,4]
         //IDEA only
@@ -80,9 +80,9 @@ public class CirclePixels
             int myIndex = startIndex + localIndexes[c];
             if (localIndexes[c] == 0) continue;
             if (myIndex < 0) continue;
-            int x = myIndex % 256;
-            int y = myIndex / 256;
-            //Debug.Log($"{x}, {y}");
+            //int x = myIndex % 256;
+            //int y = myIndex / 256;
+            if (PrimitiveFOWProcessor.GetHeightmap[myIndex] > (unitYpos * 4)) continue;
             indexes[c] = myIndex;
         }
 
@@ -232,18 +232,37 @@ public class PrimitiveFOWProcessor : MonoBehaviour
         }
     }
 
+    //FOW HEIGHTMAP
+    //heightmap, 4 rgb = 1 height (256 / 4 = 64 total height)
+    //y = 3 per cliff level (total cliff = 16 x 3)
+    //cliff level [1] = 4 * 3 = 12
+    //cliff level [2] = 4 * 6 = 24
+    //y = 48 is the maximum
+
     public List<CirclePixels> FixedPatternCircles = new List<CirclePixels>();
+    public int[] _heightmap; 
     [Space]
     [Header("References")]
     public List<GameUnit> everyUnits = new List<GameUnit>();
     public List<FOWMap> allFOWMaps = new List<FOWMap>();
     public Material terrainMaterial;
+    public Texture2D DEBUG_ref_heightMap;
     public int UpdateTexturePerSecond = 30;
 
     private float _timerCooldown = 0.1f;
+    private static PrimitiveFOWProcessor Instance;
+
+    public static int[] GetHeightmap
+    {
+        get
+        {
+            return Instance._heightmap;
+        }
+    }
 
     private void Awake()
     {
+        Instance = this;
         allFOWMaps.Add(new FOWMap(Faction.Player.Player1, new bool[256, 256], new bool[256, 256]));
         allFOWMaps.Add(new FOWMap(Faction.Player.Player2, new bool[256, 256], new bool[256, 256]));
         allFOWMaps.Add(new FOWMap(Faction.Player.Player3, new bool[256, 256], new bool[256, 256]));
@@ -351,7 +370,7 @@ public class PrimitiveFOWProcessor : MonoBehaviour
         //Debug.Log($"Rect: ({points_rect[0]} < {points_rect[3]} | {points_rect[1]} < {points_rect[2]}) = Draw: ({xDrawLength}, {yDrawLength}) | Origin pattern: ({startDrawCircle_x}, {startDrawCircle_y})");
         int _index = 0;
 
-        var indexesToDraw = myCirclePattern.GetIndexes(originPos, new Vector2Int(startDrawCircle_x, startDrawCircle_y), new Vector2Int(xDrawLength, yDrawLength));
+        var indexesToDraw = myCirclePattern.GetIndexes(originPos, new Vector2Int(startDrawCircle_x, startDrawCircle_y), new Vector2Int(xDrawLength, yDrawLength), unit.transform.position.y);
 
         foreach(var pxToDraw in indexesToDraw)
         {
@@ -408,6 +427,25 @@ public class PrimitiveFOWProcessor : MonoBehaviour
         {
             circle.ConvertCoordToDrawToIndexes();
         }
+    }
+
+    [FoldoutGroup("DEBUG")]
+    [Button("Convert texture heightmap to array")]
+    public void DEBUG_ConvertHeightmapToArray()
+    {
+        _heightmap = new int[DEBUG_ref_heightMap.width * DEBUG_ref_heightMap.height];
+
+        for(int x = 0; x < DEBUG_ref_heightMap.width; x++)
+        {
+            for (int y = 0; y < DEBUG_ref_heightMap.height; y++)
+            {
+                int myIndex = x + (y * 256);
+
+                _heightmap[myIndex] = Mathf.RoundToInt(DEBUG_ref_heightMap.GetPixel(x, y).r * 256f);
+               
+            }
+        }
+
     }
 
     public void SetTerrainTexture(FOWMap fowMapTarget)

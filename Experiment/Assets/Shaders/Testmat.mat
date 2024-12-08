@@ -76,7 +76,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SplatMap:
-        m_Texture: {fileID: 2800000, guid: 229ad98bc6e39e24a97320a249cf8011, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6f5ae5b5c7949654e8a29a163de1340f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TextureA:
@@ -144,5 +144,5 @@ Material:
     - _BaseScale: {r: 1, g: 1, b: 1, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _UnexploredFog: {r: 0.13207549, g: 0.13207549, b: 0.13207549, a: 1}
+    - _UnexploredFog: {r: 0.084905684, g: 0.084905684, b: 0.084905684, a: 1}
   m_BuildTextureStacks: []
